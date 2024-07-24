@@ -1,7 +1,10 @@
 "use client";
 
-import React, { createContext, ReactNode, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Peer from "peerjs";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import socketIOClient from "socket.io-client";
+import { v4 as uuidV4 } from "uuid";
 
 const WS = "http://localhost:8000";
 
@@ -16,13 +19,25 @@ interface RoomProviderProps {
 export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
   children,
 }) => {
+  const router = useRouter();
+  const [me, setMe] = useState<Peer>();
   const enterRoom = ({ roomId }: { roomId: string }) => {
-    console.log({ roomId });
+    router.push("/room/" + roomId);
+  };
+
+  const getUsers = ({ participants }: { participants: string[] }) => {
+    console.log({ participants });
   };
 
   useEffect(() => {
+    const meId = uuidV4();
+    const peer = new Peer(meId);
+    setMe(peer);
     ws.on("room-created", enterRoom);
+    ws.on("get-users", getUsers);
   }, []);
 
-  return <RoomContext.Provider value={{ ws }}>{children}</RoomContext.Provider>;
+  return (
+    <RoomContext.Provider value={{ ws, me }}>{children}</RoomContext.Provider>
+  );
 };
