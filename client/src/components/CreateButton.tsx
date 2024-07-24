@@ -1,23 +1,23 @@
 import { RoomContext } from "@/context/RoomContext";
 import React, { useContext } from "react";
 
-const JoinButton = React.forwardRef<HTMLButtonElement>((props, ref) => {
+const CreateButton = React.forwardRef<HTMLButtonElement>((props, ref) => {
   const { ws } = useContext(RoomContext);
-  const joinRoom = () => {
-    ws.emit("join-room");
+  const createRoom = () => {
+    ws.emit("create-room");
   };
   return (
     <button
       ref={ref}
       className="rounded-lg bg-red-600 font-medium p-2 text-white"
       {...props}
-      onClick={joinRoom}
+      onClick={createRoom}
     >
       Start new meeting
     </button>
   );
 });
 
-JoinButton.displayName = "JoinButton";
+CreateButton.displayName = "CreateButton";
 
-export default JoinButton;
+export default CreateButton;
