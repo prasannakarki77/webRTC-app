@@ -21,6 +21,7 @@ export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
 }) => {
   const router = useRouter();
   const [me, setMe] = useState<Peer>();
+  const [stream, setStream] = useState<MediaStream>();
   const enterRoom = ({ roomId }: { roomId: string }) => {
     router.push("/room/" + roomId);
   };
