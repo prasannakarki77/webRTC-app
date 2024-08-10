@@ -34,11 +34,23 @@ export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
     const meId = uuidV4();
     const peer = new Peer(meId);
     setMe(peer);
+
+    try {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          setStream(stream);
+        });
+    } catch (error) {
+      console.log(error);
+    }
     ws.on("room-created", enterRoom);
     ws.on("get-users", getUsers);
   }, []);
 
   return (
-    <RoomContext.Provider value={{ ws, me }}>{children}</RoomContext.Provider>
+    <RoomContext.Provider value={{ ws, me, stream }}>
+      {children}
+    </RoomContext.Provider>
   );
 };
