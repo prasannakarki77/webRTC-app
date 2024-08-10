@@ -2,9 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import Peer from "peerjs";
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import socketIOClient from "socket.io-client";
 import { v4 as uuidV4 } from "uuid";
+import { peerReducer } from "./peerReducer";
+import { addPeerAction } from "./peerActions";
 
 const WS = "http://localhost:8000";
 
@@ -22,6 +30,8 @@ export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
   const router = useRouter();
   const [me, setMe] = useState<Peer>();
   const [stream, setStream] = useState<MediaStream>();
+  const [peers, dispatch] = useReducer(peerReducer, {});
+
   const enterRoom = ({ roomId }: { roomId: string }) => {
     router.push("/room/" + roomId);
   };
@@ -47,6 +57,27 @@ export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
     ws.on("room-created", enterRoom);
     ws.on("get-users", getUsers);
   }, []);
+
+  useEffect(() => {
+    if (!me) return;
+    if (!stream) return;
+
+    ws.on("user-joined", ({ peerId }) => {
+      const call = me.call(peerId, stream);
+      call.on("stream", (peerStream) => {
+        dispatch(addPeerAction(peerId, peerStream));
+      });
+    });
+
+    me.on("call", (call) => {
+      call.answer();
+      call.on("stream", (peerStream) => {
+        dispatch(addPeerAction(call.peer, peerStream));
+      });
+    });
+  }, [me, stream]);
+
+  console.log({ peers });
 
   return (
     <RoomContext.Provider value={{ ws, me, stream }}>
