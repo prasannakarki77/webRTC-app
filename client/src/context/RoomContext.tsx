@@ -70,7 +70,7 @@ export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
     });
 
     me.on("call", (call) => {
-      call.answer();
+      call.answer(stream);
       call.on("stream", (peerStream) => {
         dispatch(addPeerAction(call.peer, peerStream));
       });
