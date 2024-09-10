@@ -80,7 +80,7 @@ export const RoomProvider: React.FunctionComponent<RoomProviderProps> = ({
   console.log({ peers });
 
   return (
-    <RoomContext.Provider value={{ ws, me, stream }}>
+    <RoomContext.Provider value={{ ws, me, stream, peers }}>
       {children}
     </RoomContext.Provider>
   );
